@@ -1,0 +1,6 @@
+FROM cassandra:3.11
+
+# Start by changing the cluster_name with thp. Run the command cqlsh:
+RUN cqlsh -e "UPDATE system.local SET cluster_name = 'thp' where key='local'";
+
+RUN nodetool flush

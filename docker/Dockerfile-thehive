@@ -1,0 +1,37 @@
+FROM ubuntu:18.04
+
+ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
+
+# Update
+RUN apt-get update -y && apt-get install curl gnupg2 -y
+
+# Install JAVA
+RUN apt-get install -y openjdk-8-jre-headless
+
+# Get theHIVE PGP key
+RUN curl https://raw.githubusercontent.com/TheHive-Project/TheHive/master/PGP-PUBLIC-KEY | apt-key add -
+
+# Add repo
+RUN echo 'deb https://deb.thehive-project.org beta main' | tee -a /etc/apt/sources.list.d/thehive-project.list
+
+# Update 
+RUN apt-get update -y
+
+# Install theHive
+RUN apt-get install thehive4 -y
+
+# To store files on the local filesystem, start by choosing the dedicated folder:
+RUN mkdir -p /opt/thp_data/files/thehive
+
+# Set perms for file storage
+RUN chown -R thehive:thehive /opt/thp_data/files/thehive
+RUN chown -R thehive:thehive /opt/thehive
+
+# Copy database config
+COPY conf/thehive/application.conf /etc/thehive/application.conf
+
+EXPOSE 9000
+USER thehive
+WORKDIR /opt/thehive
+
+CMD [ "bin/thehive", "-Dconfig.file=/etc/thehive/application.conf"]

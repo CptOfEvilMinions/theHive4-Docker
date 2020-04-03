@@ -1,0 +1,42 @@
+version: '2.2'
+services: 
+  thehive:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile-thehive
+    container_name: thehive-app
+    restart: unless-stopped
+    depends_on: 
+      - cassandra
+    ports:
+      - 9000:9000
+    networks: 
+      - default
+      - thehive-backend
+    volumes: 
+      - thehive-app:/opt/thp_data/files/thehive
+    cpus: 2
+    mem_limit: 1G
+  cassandra:
+    image: cassandra:3.11
+    container_name: thehive-cassandra
+    restart: unless-stopped
+    environment: 
+      CASSANDRA_CLUSTER_NAME: thp
+      MAX_HEAP_SIZE: 128M
+      HEAP_NEWSIZE: 24M
+    networks: 
+      - thehive-backend
+    volumes: 
+      - thehive-cassandra-db:/var/lib/cassandra
+    cpus: 2
+    mem_limit: 512M
+
+
+volumes: 
+  thehive-cassandra-db:
+  thehive-hadoop:
+  thehive-app:
+
+networks: 
+  thehive-backend:
